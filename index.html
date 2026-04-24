@@ -506,12 +506,7 @@ async function runSearch() {
     const response = await fetch('/.netlify/functions/search', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: PROFILE }]
-      })
+      body: JSON.stringify({ prompt: PROFILE })
     });
 
     clearInterval(stepTimer);
@@ -523,11 +518,9 @@ async function runSearch() {
 
     const data = await response.json();
 
-    // Extract text from response
-    const textBlock = data.content.find(b => b.type === 'text');
-    if (!textBlock) throw new Error('No text response from API');
+    if (data.error) throw new Error(data.error);
 
-    let raw = textBlock.text.trim();
+    let raw = (data.text || '').trim();
     // Strip markdown fences if present
     raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
 

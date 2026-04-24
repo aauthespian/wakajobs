@@ -1,95 +1,91 @@
 # WakaJobs — Daily Job Search Automation
-### Deployment Guide for Paul Anuge
+### Deployment Guide for Paul Anuge · Powered by Google Gemini (FREE)
 
 ---
 
 ## What this is
 A personal AI-powered job search dashboard that:
-- Searches live job boards daily for product design roles matching your profile
+- Searches for product design roles matching your profile daily
 - Renders a scored, tiered dashboard table in your browser
-- Runs on a free Netlify URL you can bookmark forever
+- Runs completely FREE on Netlify + Google Gemini (no credit card, ever)
 
 ---
 
-## Step 1 — Get a free Anthropic API key
+## Step 1 — Get your FREE Google Gemini API key (2 mins)
 
-1. Go to https://console.anthropic.com
-2. Sign up or log in
-3. Click **API Keys** in the left sidebar
-4. Click **Create Key** → copy and save it somewhere safe
-   - It looks like: `sk-ant-api03-xxxxxxxxxxxx`
-5. Add credits: go to **Billing** → add $5 (enough for ~500 daily searches)
+1. Go to: https://aistudio.google.com/app/apikey
+2. Sign in with your Google account
+3. Click **"Create API key"**
+4. Copy the key — it looks like: `AIzaSyXXXXXXXXXXXXXXXXXXXXXX`
+5. Save it somewhere safe
+
+✅ Completely free · No credit card needed · 1,500 requests/day free
 
 ---
 
-## Step 2 — Create a free GitHub account & upload the files
+## Step 2 — Upload files to GitHub (3 mins)
 
 1. Go to https://github.com and sign up (free)
-2. Click the **+** icon → **New repository**
-3. Name it: `wakajobs`
-4. Set to **Public**
-5. Click **Create repository**
-6. Click **uploading an existing file**
-7. Upload ALL files from this folder:
+2. Click **+** → **New repository**
+3. Name it: `wakajobs` · set to **Public** · click **Create repository**
+4. Click **"uploading an existing file"**
+5. Upload ALL files from this zip (keep the folder structure):
    ```
-   wakajobs/
-   ├── index.html
-   ├── netlify.toml
-   └── netlify/
-       └── functions/
-           └── search.js
+   index.html
+   netlify.toml
+   netlify/functions/search.js
    ```
-8. Click **Commit changes**
+6. Click **Commit changes**
 
 ---
 
-## Step 3 — Deploy to Netlify (free forever)
+## Step 3 — Deploy to Netlify (2 mins)
 
-1. Go to https://netlify.com and sign up with your GitHub account (free)
-2. Click **Add new site** → **Import an existing project**
-3. Choose **GitHub** → select your `wakajobs` repository
+1. Go to https://netlify.com → sign up with GitHub (free)
+2. Click **Add new site** → **Import an existing project** → **GitHub**
+3. Select your `wakajobs` repository
 4. Leave all build settings as default
 5. Click **Deploy site**
-6. Wait ~1 minute — Netlify gives you a URL like:
+6. Wait ~1 min — you'll get a URL like:
    `https://cheerful-sundae-abc123.netlify.app`
-7. **Rename it** (optional): Site settings → Change site name → e.g. `paul-wakajobs`
-   → Your URL becomes: `https://paul-wakajobs.netlify.app`
+7. Optional rename: **Site settings** → **Change site name** → e.g. `paul-wakajobs`
 
 ---
 
-## Step 4 — Add your API key (the important step)
+## Step 4 — Add your Gemini API key to Netlify (1 min)
 
-1. In Netlify, go to **Site settings** → **Environment variables**
+1. In Netlify → **Site settings** → **Environment variables**
 2. Click **Add a variable**
-3. Set:
-   - **Key:** `ANTHROPIC_API_KEY`
-   - **Value:** `sk-ant-api03-xxxxxxxxxxxx` (your actual key from Step 1)
+3. Set exactly:
+   - **Key:** `GEMINI_API_KEY`
+   - **Value:** `AIzaSyXXXXXXXXXXX` (your actual key from Step 1)
 4. Click **Save**
-5. Go to **Deploys** → click **Trigger deploy** → **Deploy site**
-   (This restarts the site so it picks up your key)
+5. Go to **Deploys** → **Trigger deploy** → **Deploy site**
 
 ---
 
-## Step 5 — Bookmark & set daily reminder
+## Step 5 — Bookmark + set daily reminder
 
-1. Open your Netlify URL in Chrome
-2. Bookmark it (Ctrl+D / Cmd+D)
-3. Set up daily Google Calendar reminder:
+1. Open your Netlify URL in Chrome → **Bookmark it** (Ctrl+D)
+2. Set up daily Google Calendar reminder:
    - Go to https://calendar.google.com
-   - Create event: **"Run WakaJobs Search"** at 8:00 AM
+   - Create event: **"Run WakaJobs"** at 8:00 AM
    - Recurrence: **Every day**
-   - Notification: **Email** → **0 minutes before**
-   - Description: Paste your Netlify URL
-   - Save
+   - Notification: **Email → 0 minutes before**
+   - Description: paste your Netlify URL
+   - Save ✅
 
-Every morning at 8 AM you'll get an email. Click → open → hit **Run Today's Search**.
+Every morning you get an email → click → open app → hit **Run Today's Search**.
 
 ---
 
-## Your live URL (fill in after deploy)
-```
-https://_______________________.netlify.app
-```
+## Cost
+| Item | Cost |
+|------|------|
+| Netlify hosting | Free forever |
+| GitHub | Free forever |
+| Google Gemini API | Free forever (1,500 req/day) |
+| **Total** | **$0** |
 
 ---
 
@@ -97,19 +93,11 @@ https://_______________________.netlify.app
 
 | Error | Fix |
 |-------|-----|
-| "API key not configured" | Re-check Step 4 — key must be exact, no spaces |
-| "Search failed: 401" | API key is wrong or expired — generate a new one |
-| "Search failed: 529" | Anthropic is overloaded — try again in 1 minute |
-| Blank results / no jobs | Try again — web search occasionally returns sparse results |
-| Site not found | Wait 2 minutes after deploy, then refresh |
+| "API key not configured" | Re-check Step 4 — key name must be `GEMINI_API_KEY` exactly |
+| "Search failed: 400" | API key is wrong — re-copy it from aistudio.google.com |
+| Blank / empty results | Try again — Gemini occasionally returns sparse results |
+| Site not found | Wait 2 mins after deploy, then refresh |
 
 ---
 
-## Cost estimate
-- Netlify hosting: **Free forever** (free tier is more than enough)
-- GitHub: **Free forever**
-- Anthropic API: ~$0.02–0.05 per search · **$5 lasts ~3–6 months** of daily use
-
----
-
-Built by Claude · WakaJobs v1.0
+Built by Claude · WakaJobs v2.0 · Gemini Edition
