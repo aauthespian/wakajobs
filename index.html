@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WakaJobs — Daily Job Search · Paul Anuge</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --border2: #333;
+    --text: #f0ede8;
+    --muted: #888;
+    --muted2: #555;
+    --accent: #FFC300;
+    --accent2: #e6af00;
+    --green: #3dd68c;
+    --green-bg: #0d2e1c;
+    --blue: #5b9cf6;
+    --blue-bg: #0d1f3c;
+    --red: #f87171;
+    --red-bg: #2e0d0d;
+    --font: 'Syne', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  /* HEADER */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: #000;
+  }
+  .logo-text { font-size: 17px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo-text span { color: var(--accent); }
+  .header-meta { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .header-meta strong { color: var(--text); }
+
+  /* MAIN */
+  main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
+
+  /* HERO STRIP */
+  .hero {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .hero-text h1 { font-size: 22px; font-weight: 600; margin-bottom: 4px; }
+  .hero-text p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .hero-text p strong { color: var(--text); }
+  .run-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.2px;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .run-btn:hover { background: var(--accent2); }
+  .run-btn:active { transform: scale(0.97); }
+  .run-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .run-btn svg { width: 16px; height: 16px; }
+
+  /* PROFILE STRIP */
+  .profile-strip {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .ptag {
+    font-size: 11px; font-family: var(--mono);
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 12px; color: var(--muted);
+  }
+  .ptag.highlight { border-color: var(--accent); color: var(--accent); }
+
+  /* STATUS BAR */
+  #status-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 24px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    display: none;
+    align-items: center;
+    gap: 10px;
+  }
+  #status-bar.visible { display: flex; }
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* STATS ROW */
+  #stats-row {
+    display: none;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  #stats-row.visible { display: grid; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .stat-card .n { font-size: 26px; font-weight: 600; }
+  .stat-card .l { font-size: 11px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+  .stat-card.accent-stat { border-color: var(--accent); }
+  .stat-card.accent-stat .n { color: var(--accent); }
+
+  /* TIER SECTIONS */
+  #results { display: none; }
+  #results.visible { display: block; }
+
+  .tier-section { margin-bottom: 32px; }
+  .tier-hdr {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .tier-pill {
+    font-size: 11px; font-weight: 600; font-family: var(--mono);
+    padding: 4px 12px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .t-a .tier-pill { background: var(--green-bg); color: var(--green); border: 1px solid #1a4d32; }
+  .t-b .tier-pill { background: var(--blue-bg); color: var(--blue); border: 1px solid #1a3460; }
+  .t-c .tier-pill { background: #1a1a1a; color: var(--muted); border: 1px solid var(--border); }
+  .tier-desc { font-size: 12px; color: var(--muted2); font-family: var(--mono); }
+
+  .tbl-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  table { width: 100%; border-collapse: collapse; min-width: 800px; }
+  thead th {
+    font-size: 10px; font-family: var(--mono);
+    text-transform: uppercase; letter-spacing: 0.07em;
+    color: var(--muted); font-weight: 500;
+    padding: 10px 12px; text-align: left;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 11px 12px; font-size: 12.5px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top; color: var(--text);
+    word-break: break-word;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--surface); }
+  .jt { font-weight: 600; font-size: 12.5px; }
+  .jsub { font-size: 10.5px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+  .co { font-weight: 500; font-size: 12.5px; }
+  .sal { font-size: 11.5px; color: var(--muted); }
+  .tag {
+    display: inline-block;
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 2px 8px;
+    font-size: 10px; color: var(--muted);
+    margin: 1px 2px 1px 0; font-family: var(--mono);
+  }
+  .rtag {
+    display: inline-block; font-size: 9px; font-family: var(--mono); font-weight: 500;
+    background: var(--green-bg); color: var(--green);
+    border: 1px solid #1a4d32; border-radius: 20px; padding: 1px 7px; margin-left: 4px;
+  }
+  .abtn {
+    display: inline-block; font-size: 11px; font-family: var(--mono);
+    padding: 5px 10px; border: 1px solid var(--border2);
+    border-radius: 6px; color: var(--accent); text-decoration: none;
+    white-space: nowrap; transition: background 0.1s;
+  }
+  .abtn:hover { background: var(--surface2); border-color: var(--accent); }
+  .score {
+    display: inline-block; font-size: 11.5px; font-weight: 600;
+    font-family: var(--mono); padding: 3px 10px; border-radius: 20px;
+  }
+  .s-a { background: var(--green-bg); color: var(--green); }
+  .s-b { background: var(--blue-bg); color: var(--blue); }
+  .s-c { background: #1a1a1a; color: var(--muted); border: 1px solid var(--border); }
+
+  /* ERROR */
+  #error-box {
+    display: none; background: var(--red-bg); border: 1px solid #4d1a1a;
+    border-radius: 8px; padding: 16px 20px; margin-bottom: 20px;
+    font-size: 13px; color: var(--red);
+  }
+  #error-box.visible { display: block; }
+
+  /* EMAIL SECTION */
+  .email-section {
+    margin-top: 40px;
+    border-top: 1px solid var(--border);
+    padding-top: 32px;
+  }
+  .email-section h2 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .email-section p { font-size: 13px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .setup-steps { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+  .step {
+    display: flex; gap: 14px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); color: #000;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 1px;
+  }
+  .step-body { flex: 1; }
+  .step-body strong { font-size: 13px; display: block; margin-bottom: 4px; }
+  .step-body p { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .step-body a { color: var(--accent); text-decoration: none; }
+  .step-body a:hover { text-decoration: underline; }
+  .code-block {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 14px 16px; margin-top: 8px;
+    font-family: var(--mono); font-size: 11.5px; color: var(--text);
+    line-height: 1.7; white-space: pre-wrap; word-break: break-all;
+    position: relative;
+  }
+  .copy-btn {
+    position: absolute; top: 8px; right: 8px;
+    background: var(--border2); color: var(--muted);
+    border: none; border-radius: 5px;
+    font-family: var(--mono); font-size: 10px; padding: 4px 9px;
+    cursor: pointer; transition: background 0.1s;
+  }
+  .copy-btn:hover { background: var(--accent); color: #000; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 32px;
+    font-size: 11px; color: var(--muted2);
+    font-family: var(--mono);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 8px;
+  }
+  .last-run { font-family: var(--mono); font-size: 11px; color: var(--muted2); }
+
+  @media (max-width: 600px) {
+    header, main, footer { padding-left: 16px; padding-right: 16px; }
+    .hero { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">W</div>
+    <div class="logo-text">Waka<span>Jobs</span></div>
+  </div>
+  <div class="header-meta">
+    Daily job search · <strong>Paul Anuge</strong> · Product Designer
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="hero-text">
+      <h1>Good morning, Paul. 👋</h1>
+      <p>Your AI recruiter is ready. Hit <strong>Run Today's Search</strong> to scan for new product design roles matching your profile — Nigeria-eligible, remote, fintech &amp; healthtech.</p>
+    </div>
+    <button class="run-btn" id="runBtn" onclick="runSearch()">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg>
+      Run Today's Search
+    </button>
+  </div>
+
+  <div class="profile-strip">
+    <span class="ptag highlight">Product Designer</span>
+    <span class="ptag">Figma</span>
+    <span class="ptag">UX Research</span>
+    <span class="ptag">Prototyping</span>
+    <span class="ptag">Canva</span>
+    <span class="ptag">HTML/CSS</span>
+    <span class="ptag highlight">Fintech</span>
+    <span class="ptag highlight">Healthtech</span>
+    <span class="ptag highlight">Edtech</span>
+    <span class="ptag">Nigeria / Remote</span>
+    <span class="ptag">EMEA eligible</span>
+    <span class="ptag">1–3 yrs exp</span>
+  </div>
+
+  <div id="status-bar">
+    <div class="spinner"></div>
+    <span id="status-text">Initialising search agent...</span>
+  </div>
+
+  <div id="error-box"></div>
+
+  <div id="stats-row">
+    <div class="stat-card accent-stat"><div class="n" id="s-total">0</div><div class="l">roles found</div></div>
+    <div class="stat-card"><div class="n" id="s-remote">0</div><div class="l">remote / open NG</div></div>
+    <div class="stat-card"><div class="n" id="s-a">0</div><div class="l">tier A matches</div></div>
+    <div class="stat-card"><div class="n" id="s-b">0</div><div class="l">tier B matches</div></div>
+    <div class="stat-card"><div class="n" id="s-c">0</div><div class="l">tier C stretch</div></div>
+  </div>
+
+  <div id="results"></div>
+
+  <!-- EMAIL REMINDER SETUP -->
+  <div class="email-section">
+    <h2>Set Up Your Daily Email Reminder</h2>
+    <p>Claude can't send automated emails on its own, but you can set this up in 2 minutes using Gmail's scheduled send or Google Calendar. Here's exactly how:</p>
+
+    <div class="setup-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <strong>Open Gmail and compose a new email to yourself</strong>
+          <p>Send it to <strong>thespiangabriel@gmail.com</strong>. Use the subject line and body below — copy it exactly.</p>
+          <div class="code-block" id="email-template">Subject: 🔍 Daily Job Search — Run WakaJobs Now
+
+Good morning Paul,
+
+Time to run your daily product design job search.
+
+👉 Open your WakaJobs dashboard and hit "Run Today's Search":
+[Paste your WakaJobs bookmark URL here]
+
+Or use this Claude prompt directly:
+https://claude.ai/new
+
+--- YOUR DAILY SEARCH PROMPT ---
+You are my AI recruiter. Search for real, currently open product designer / UI UX designer job listings posted in the last 24–48 hours that match my profile:
+
+Name: Paul Anuge
+Role: Product Designer (entry–mid level, 1–3 yrs exp)
+Skills: Figma, UX research, wireframing, prototyping, usability testing, Canva, HTML/CSS basics
+Industries: Fintech, Healthtech, Edtech, SaaS
+Location: Nigeria (Ibadan/Lagos) — open to fully remote roles and EMEA-eligible remote positions
+Previous experience: Umba Pay (loan app UX, social media design), Bluecoral Healthcare (digital marketing), Toast Dating (community marketing)
+
+Find at least 15 matching roles. Present as a dashboard table with: Job Title | Company | Location | Salary Range | Required Skills | Application Link | Match Score (out of 100). Sort by Match Score. Group into Tier A (75–100), Tier B (55–74), Tier C (30–54).
+---
+
+Good luck today! 🚀
+<button class="copy-btn" onclick="copyEmail()">Copy</button></div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <strong>Schedule it to repeat daily using Gmail + Google Calendar</strong>
+          <p>Gmail doesn't have native recurring send, so use <strong>Google Calendar</strong> instead: create a daily event at your preferred morning time (e.g. 8:00 AM), paste the prompt in the event description, and set a <strong>email notification</strong> so it pings you. That's your daily trigger.</p>
+          <div class="code-block">Steps:
+1. Go to calendar.google.com
+2. Create new event → set time to e.g. 8:00 AM daily
+3. Set recurrence: "Every day"
+4. Add notification: "Email" → "0 minutes before"
+5. Paste the Claude prompt above in the description
+6. Save
+
+Every morning at 8 AM, Google Calendar sends you
+an email with the prompt ready to paste into Claude.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <strong>Bookmark this page for one-click access</strong>
+          <p>Save this HTML file locally or host it free on <a href="https://pages.github.com" target="_blank">GitHub Pages</a>. Then bookmark it in your browser. Every morning: open bookmark → click Run → get your fresh dashboard. No setup needed each day.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <strong>Optional: fully automated emails with Make (free tier)</strong>
+          <p>For true zero-click automation: sign up at <a href="https://make.com" target="_blank">make.com</a> (free), create a scenario that triggers daily, calls the Claude API with your prompt, and sends the results to your Gmail. The prompt above contains everything Make needs. I can build the Make scenario template for you if you want.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <span>WakaJobs · Built for Paul Anuge · Powered by Claude AI</span>
+  <span class="last-run" id="last-run">Last run: never</span>
+</footer>
+
+<script>
+const PROFILE = `You are an expert AI job recruiter. Search for real, currently open product designer / UI UX designer job listings posted in the last 24–48 hours that match this candidate profile:
+
+Name: Paul Anuge
+Role: Product Designer (entry–mid level, 1–3 years experience)
+Skills: Figma, UX research, wireframing, prototyping, usability testing, Canva, HTML/CSS basics, marketing design, social media graphics
+Industries target: Fintech, Healthtech, Edtech, SaaS, Startups
+Location: Nigeria (Ibadan/Lagos) — open to fully remote roles and EMEA-eligible positions
+Experience highlights: Designed loan application UX for Umba Pay fintech app, managed social media design for Bluecoral Healthcare, community marketing for Toast Dating (London startup)
+Portfolio: Has Google UX Certificate + Axia Africa Product Design Certificate
+
+Today's date: ${new Date().toLocaleDateString('en-GB', {weekday:'long', year:'numeric', month:'long', day:'numeric'})}
+
+Find at least 15 matching roles from LinkedIn, Indeed Nigeria, Glassdoor, Wellfound, HotNigerianJobs, remote job boards, and company career pages.
+
+Return ONLY valid JSON (no markdown, no preamble) in this exact structure:
+{
+  "date": "today's date string",
+  "stats": {
+    "total": number,
+    "remote": number,
+    "tier_a": number,
+    "tier_b": number,
+    "tier_c": number
+  },
+  "tiers": {
+    "A": [job objects],
+    "B": [job objects],
+    "C": [job objects]
+  }
+}
+
+Each job object must have exactly these fields:
+{
+  "title": "Job title",
+  "subtitle": "Industry · brief note",
+  "company": "Company name",
+  "location": "City/Country",
+  "remote": true or false,
+  "salary": "Salary range or 'Not disclosed'",
+  "skills": ["skill1", "skill2", "skill3", "skill4"],
+  "apply_url": "https://direct application URL",
+  "score": number between 30 and 100
+}
+
+Tier A = score 75–100 (strong match), Tier B = 55–74 (good match), Tier C = 30–54 (stretch).
+Sort each tier by score descending. Return at minimum 5 jobs in Tier A, 5 in Tier B, 5 in Tier C.`;
+
+async function runSearch() {
+  const btn = document.getElementById('runBtn');
+  const statusBar = document.getElementById('status-bar');
+  const statusText = document.getElementById('status-text');
+  const errorBox = document.getElementById('error-box');
+  const results = document.getElementById('results');
+  const statsRow = document.getElementById('stats-row');
+
+  btn.disabled = true;
+  btn.innerHTML = `<div class="spinner" style="border-top-color:#000;border-color:rgba(0,0,0,0.2);"></div> Searching...`;
+  statusBar.classList.add('visible');
+  errorBox.classList.remove('visible');
+  results.classList.remove('visible');
+  statsRow.classList.remove('visible');
+
+  const steps = [
+    'Connecting to job boards...',
+    'Scanning LinkedIn Nigeria, Indeed, Glassdoor...',
+    'Checking Wellfound, HotNigerianJobs, remote boards...',
+    'Matching roles to your profile...',
+    'Scoring and ranking results...',
+    'Building your dashboard...'
+  ];
+  let si = 0;
+  const stepTimer = setInterval(() => {
+    if (si < steps.length) { statusText.textContent = steps[si++]; }
+  }, 3500);
+
+  try {
+    // Calls our Netlify serverless function — API key is safe on the server
+    const response = await fetch('/.netlify/functions/search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4000,
+        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
+        messages: [{ role: 'user', content: PROFILE }]
+      })
+    });
+
+    clearInterval(stepTimer);
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`API error ${response.status}: ${err}`);
+    }
+
+    const data = await response.json();
+
+    // Extract text from response
+    const textBlock = data.content.find(b => b.type === 'text');
+    if (!textBlock) throw new Error('No text response from API');
+
+    let raw = textBlock.text.trim();
+    // Strip markdown fences if present
+    raw = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+
+    let parsed;
+    try { parsed = JSON.parse(raw); }
+    catch(e) {
+      // Try to extract JSON from within text
+      const match = raw.match(/\{[\s\S]*\}/);
+      if (match) { parsed = JSON.parse(match[0]); }
+      else throw new Error('Could not parse job data. Please try again.');
+    }
+
+    renderDashboard(parsed);
+    document.getElementById('last-run').textContent = `Last run: ${new Date().toLocaleTimeString()}`;
+
+  } catch(err) {
+    clearInterval(stepTimer);
+    errorBox.textContent = `Search failed: ${err.message}. Check your API key or network connection and try again.`;
+    errorBox.classList.add('visible');
+  } finally {
+    statusBar.classList.remove('visible');
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" width="16" height="16"><path d="M3 2.5l10 5.5-10 5.5V2.5z"/></svg> Run Today's Search`;
+  }
+}
+
+function renderDashboard(data) {
+  const statsRow = document.getElementById('stats-row');
+  const s = data.stats || {};
+  document.getElementById('s-total').textContent = s.total || 0;
+  document.getElementById('s-remote').textContent = s.remote || 0;
+  document.getElementById('s-a').textContent = s.tier_a || 0;
+  document.getElementById('s-b').textContent = s.tier_b || 0;
+  document.getElementById('s-c').textContent = s.tier_c || 0;
+  statsRow.classList.add('visible');
+
+  const container = document.getElementById('results');
+  container.innerHTML = '';
+
+  const tiers = [
+    { key: 'A', label: 'Tier A — Strong Match', desc: 'Score 75–100 · Best alignment with your skills & target industries', cls: 't-a', scls: 's-a' },
+    { key: 'B', label: 'Tier B — Good Match', desc: 'Score 55–74 · Solid fit with minor gaps', cls: 't-b', scls: 's-b' },
+    { key: 'C', label: 'Tier C — Stretch', desc: 'Score 30–54 · Aspirational · apply to build pipeline', cls: 't-c', scls: 's-c' }
+  ];
+
+  tiers.forEach(tier => {
+    const jobs = (data.tiers && data.tiers[tier.key]) || [];
+    if (!jobs.length) return;
+
+    const section = document.createElement('div');
+    section.className = `tier-section ${tier.cls}`;
+
+    const rows = jobs.map(j => `
+      <tr>
+        <td><div class="jt">${esc(j.title)}</div><div class="jsub">${esc(j.subtitle||'')}</div></td>
+        <td><span class="co">${esc(j.company)}</span></td>
+        <td>${esc(j.location)}${j.remote ? '<span class="rtag">Remote</span>' : ''}</td>
+        <td><span class="sal">${esc(j.salary)}</span></td>
+        <td>${(j.skills||[]).map(s=>`<span class="tag">${esc(s)}</span>`).join('')}</td>
+        <td><a class="abtn" href="${esc(j.apply_url)}" target="_blank" rel="noopener">Apply →</a></td>
+        <td><span class="score ${tier.scls}">${j.score} / 100</span></td>
+      </tr>`).join('');
+
+    section.innerHTML = `
+      <div class="tier-hdr">
+        <span class="tier-pill">${tier.label}</span>
+        <span class="tier-desc">${tier.desc}</span>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:17%">Job Title</th>
+            <th style="width:12%">Company</th>
+            <th style="width:11%">Location</th>
+            <th style="width:13%">Salary Range</th>
+            <th style="width:22%">Required Skills</th>
+            <th style="width:12%">Application Link</th>
+            <th style="width:9%">Match Score</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+
+    container.appendChild(section);
+  });
+
+  container.classList.add('visible');
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function copyEmail() {
+  const block = document.getElementById('email-template');
+  const text = block.innerText.replace('Copy','').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = block.querySelector('.copy-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+</body>
+</html>
